@@ -14,6 +14,7 @@ IDENT [a-zA-Z_][0-9a-zA-Z_.]*
 "\"/\""          return '/'
 "\"-\""          return '-'
 "\"+\""          return '+'
+"\"%\""          return '%'
 "\"==\""         return '=='
 "\"!==\""        return '!=='
 "\"!\""          return '!'
@@ -24,12 +25,15 @@ IDENT [a-zA-Z_][0-9a-zA-Z_.]*
 "\"or\""         return 'or'
 "\"and\""        return 'and'
 "\"var\""        return 'var'
+"\"if\""         return 'if'
 "{"              return '{'
 "}"              return '}'
 "["              return '['
 "]"              return ']'
 ","              return ','
 ":"              return ':'
+
+
 
 
 
@@ -43,7 +47,7 @@ IDENT [a-zA-Z_][0-9a-zA-Z_.]*
 %% /* language grammar */
 
 conditional
-  : cond EOF 
+  : cond EOF
     { typeof console !== 'undefined' ? console.log($1) : print($1); }
   ;
 
@@ -53,7 +57,7 @@ cond
 
 values
   : val { $$ = $1; }
-  | val ',' val { $$ = $1 + ',' + $3; }
+  | val ',' values { $$ = $1 + ',' + $3; }
   ;
   
 val 
@@ -63,5 +67,5 @@ val
   ;
 
 op
-  : '*' | '/' | '-' | '+' | '==' | '!==' | '!' | '<' | '>' | '<=' | '>=' | 'or' | 'and' | 'var'
+  : '*' | '/' | '-' | '+' | '%' | '==' | '!==' | '!' | '<' | '>' | '<=' | '>=' | 'or' | 'and' | 'var' | 'if'
   ;
