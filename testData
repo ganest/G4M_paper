@@ -16,7 +16,13 @@
         {"<" : [ { "var" : ['temp'] }, 110.5 ]},
         {"==" : [ { "var" : [pie.filling] }, apple ] }
       ] 
-    }
-	]
+    },
+		{
+			"if" : [
+				{"<": [{"var": ['temp']}, 0] }, 'freezing',
+				{"<": [{"var":['temp']}, 100] }, 'liquid',
+				'gas'
+			]
+		}
+	]	
 }
-
