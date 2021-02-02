@@ -1,0 +1,58 @@
+{
+  "id": 1234,
+  "name": 'first test game',
+  "description": 'a first test',
+  "gameObjects": [
+    {
+      "id": ab23,
+      "objectType": "VO",
+      "hidden": true,
+      "active": false,
+      "trackable" : true,
+      "proximity": 10,
+      "name": 'diamond',
+      "icon": 'git',
+      "exposes": [{"name": "collectable"}]
+    },
+    {
+      "id": 13,
+      "objectType": "RWO",
+      "name": 'pink Diamond',
+      "icon": 'pink',
+      "exposes": [
+        {
+          "name": "collectable", 
+          "conditional": {
+            "if": [
+              {"==": [ { "%": [ { "var": ['i'] }, 15 ] }, 0]},
+              'fizzbuzz',
+
+              {"==": [ { "%": [ { "var": ['i'] }, 3 ] }, 0]},
+              'fizz',
+
+              {"==": [ { "%": [ { "var": ['i'] }, 5 ] }, 0]},
+              'buzz',
+
+              { "var": ['i'] },
+
+              { "and" : 
+                [
+                  {"<" : [ { "var" : ['temp'] }, 110.5 ]},
+                  {"==" : [ { "var" : [pie.filling] }, apple ] }
+                ] 
+              },
+              {
+                "if" : [
+                  {"<": [{"var": ['temp']}, 0] }, 'freezing',
+                  {"<": [{"var":['temp']}, 100] }, 'liquid',
+                  'gas'
+                ]
+              }
+            ]	
+          } 
+        }
+      ]          
+    }
+    ],
+  "world": {}
+}
