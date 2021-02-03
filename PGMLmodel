@@ -12,7 +12,9 @@
       "proximity": 10,
       "name": 'diamond',
       "icon": 'git',
-      "exposes": [{"name": "collectable"}]
+      "exposes": [],
+      "testPropNum": 12,
+      "testPropStr": 'str'
     },
     {
       "id": 13,
