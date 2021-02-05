@@ -52,8 +52,17 @@ false             return 'FALSE'
 ","              return ','
 ":"              return ':'
 
-"\"world\""       return 'WORLD'
-"\"gameObjects\"" return 'GAME_OBJS'
+"\"world\""                 return 'WORLD'
+"\"currency\""              return 'CURRENCY'
+"\"territory\""             return 'TERRITORY'
+"\"territoryArea\""         return 'TERRITORY_AREA'
+"\"gameObjects\""           return 'GAME_OBJS'
+"\"gameObjectsInstances\""  return 'GAME_OBJS_INSTS'
+
+"\"objInstId\""   return 'OBJ_INST_ID'
+"\"instanceOf\""  return 'INSTANCE_OF'
+"\"creatorId\""   return 'CREATOR_ID'
+"\"position\""    return 'POS'
 "\"name\""        return 'NAME'
 "\"id\""          return 'UID'
 "\"description\"" return 'DESC'
@@ -72,6 +81,14 @@ false             return 'FALSE'
 "\"trackable\""   return 'TRACKABLE'
 "\"proximity\""   return 'PROXIMITY'
 "\"conditional\"" return 'CONDITIONAL'
+"\"center\""      return 'CENTER'
+"\"lat\""         return 'LAT'
+"\"lon\""         return 'LON'  
+"\"radius\""      return 'RADIUS'
+"\"area\""        return 'AREA'
+"\"scenes\""      return 'SCENES'
+"\"scene\""       return 'SCENE'
+"\"laws\""        return "LAWS"
 
 {P_NAME}           return 'PROP_NAME'
 
@@ -118,10 +135,10 @@ objType
   ;
 
 vObjStdProps
-  : ',' HIDDEN ':' bool_val ',' ACTIVE ':' bool_val ',' TRACKABLE ':' FALSE
-    { $$ = ',' + $HIDDEN + ':' + $bool_val1 + ',' + $ACTIVE + ':' + $bool_val2 + ',' + $TRACKABLE + ':' + $FALSE; }
-  | ',' HIDDEN ':' bool_val ',' ACTIVE ':' bool_val ',' TRACKABLE ':' TRUE ',' PROXIMITY ':' num_val 
-    { $$ = ',' + $HIDDEN + ':' + $bool_val1 + ',' + $ACTIVE + ':' + $bool_val2 + ',' + $TRACKABLE + ':' + $TRUE + ',' + $PROXIMITY + ':' + $num_val; } 
+  : ',' HIDDEN ':' boolVal ',' ACTIVE ':' boolVal ',' TRACKABLE ':' FALSE
+    { $$ = ',' + $HIDDEN + ':' + $boolVal1 + ',' + $ACTIVE + ':' + $boolVal2 + ',' + $TRACKABLE + ':' + $FALSE; }
+  | ',' HIDDEN ':' boolVal ',' ACTIVE ':' boolVal ',' TRACKABLE ':' TRUE ',' PROXIMITY ':' numVal 
+    { $$ = ',' + $HIDDEN + ':' + $boolVal1 + ',' + $ACTIVE + ':' + $boolVal2 + ',' + $TRACKABLE + ':' + $TRUE + ',' + $PROXIMITY + ':' + $numVal; } 
  ;
 
 exposes
@@ -169,7 +186,76 @@ cond
   ;
 
 world
-  : '{' '}'
+  : '{' worldMeta ',' SCENES ':' scenes ',' LAWS ':' laws '}'
+  ;
+
+worldMeta
+  : CURRENCY ':' STR ',' TERRITORY ':' STR ',' TERRITORY_AREA ':' area
+  ;
+
+scenes
+  : '[' sceneItems ']' { $$ = '[' + $2 + ']'; }
+  ;
+
+sceneItems
+  : scene
+  | scene ',' sceneItems
+  ;
+
+scene
+  : '{' UID ':' STR ',' NAME ':' STR ',' AREA ':' area ',' GAME_OBJS_INSTS ':' gameObjsInsts '}'
+  ;
+
+gameObjsInsts 
+  : '[' gameObjsInstItems ']' { $$ = '[' + $2 + ']'; }
+  ;
+gameObjsInstItems 
+  : gameObjInstance 
+  | gameObjInstance ',' gameObjsInstItems { $$ = $1 + ',' + $3; }
+  | %empty  
+  ;
+
+gameObjInstance
+  : '{' OBJ_INST_ID ':' STR ',' INSTANCE_OF ':' instOf ',' CREATOR_ID ':' STR ',' POS ':' geoGoords '}'     
+    { $$ = '\n{\n'+ $objStdProps + '\n}\n'; }
+  | '{' objStdProps  objAdditionalProps '}' 
+    { $$ = '\n{\n'+ $objStdProps + $objAdditionalProps +'\n}\n'; }  
+  ;
+
+instOf
+  : STR
+  ;
+
+laws
+  : '[' lawItems ']'  
+  ;
+
+lawItems
+  : law
+  | law ',' lawItems
+  | %empty
+  ;  
+
+law
+  : cond
+  ;
+
+avatars
+
+area
+  : '{' center ',' radius '}'
+  ;
+
+center
+  : CENTER ':' geoCoords
+  ;
+
+geoCoords
+  : '{' LAT ':' numVal ',' LON ':' numVal '}'
+  ;
+
+radius
+  : RADIUS ':' numVal
   ;
 
 values
@@ -179,17 +265,17 @@ values
   
 val 
   : cond 
-  | num_val
+  | numVal
   | ID 
   | STR 
   ;
 
-bool_val
+boolVal
   : TRUE
   | FALSE
   ;
 
-num_val
+numVal
   : NUMBER 
   ;
 

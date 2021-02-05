@@ -56,5 +56,38 @@
       ]          
     }
     ],
-  "world": {}
+  "world": {
+    "currency": 'credits',
+    "territory": 'Chania',
+    "territoryArea": {
+      "center": { "lat": 35.5138298, "lon": 24.0180367 },
+      "radius": 5000
+    },
+    "scenes": [
+      {
+        "id": '1000',
+        "name": 'NeorioMoro',
+        "area": {
+          "center": { "lat": 35.519366, "lon": 24.023188 },
+          "radius": 130
+        },
+        "gameObjectsInstances": []
+      }
+    ],
+    "laws": [
+      {
+        "if" : [
+          {"<": [{"var": ['temp']}, 0] }, 'freezing',
+          {"<": [{"var":['temp']}, 100] }, 'liquid',
+          'gas'
+        ]
+      },
+      { "and" : 
+        [
+          {"<" : [ { "var" : ['temp'] }, 110.5 ]},
+          {"==" : [ { "var" : [pie.filling] }, apple ] }
+        ] 
+      }
+    ]  
+  }
 }
