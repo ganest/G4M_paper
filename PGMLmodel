@@ -76,18 +76,44 @@
     ],
     "laws": [
       {
-        "if" : [
-          {"<": [{"var": ['temp']}, 0] }, 'freezing',
-          {"<": [{"var":['temp']}, 100] }, 'liquid',
-          'gas'
-        ]
+        "id": '10001',
+        "name": 'firt law',
+        "rule": {
+          "if" : [
+            {"<": [{"var": ['temp']}, 0] }, 'freezing',
+            {"<": [{"var":['temp']}, 100] }, 'liquid',
+            'gas'
+          ] 
+        }
       },
-      { "and" : 
-        [
-          {"<" : [ { "var" : ['temp'] }, 110.5 ]},
-          {"==" : [ { "var" : [pie.filling] }, apple ] }
-        ] 
+      { 
+        "id": '10002',
+        "name": 'second law',
+        "rule": {
+          "and" : 
+          [
+            {"<" : [ { "var" : ['temp'] }, 110.5 ]},
+            {"==" : [ { "var" : [pie.filling] }, apple ] }
+          ] 
+        }
       }
-    ]  
+    ],
+    "players": [       
+      {
+        "inventory": [
+          {
+            "objInstId": 'diamong_1', 
+            "instanceOf": 'diamond', 
+            "creatorId": '444', 
+            "position":  { "lat": 35.5138298, "lon": 24.0180367 }
+          }
+        ],
+        "avatar": { "name": 'owl', "icon": 'owl_icon', "photo": 'owl_photo' },
+        "id": 'player_1',
+        "name": 'George Anestis',
+        "alias": 'ganest'        
+      }
+    ],
+    "nonPlayerChars" : []      
   }
 }

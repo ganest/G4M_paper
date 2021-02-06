@@ -89,6 +89,20 @@ false             return 'FALSE'
 "\"scenes\""      return 'SCENES'
 "\"scene\""       return 'SCENE'
 "\"laws\""        return "LAWS"
+"\"rule\""        return "RULE"
+"\"players\""     return "PLAYERS"
+"\"alias\""       return "ALIAS"
+"\"avatar\""      return "AVATAR"
+"\"photo\""       return "PHOTO"
+"\"inventory\""   return "INVENTORY"
+"\"skills\""      return "SKILLS"
+"\"missions\""    return "MISSIONS"
+"\"status\""      return "STATUS"
+"\"pending\""     return "PENDING"
+
+"\"accomplished\"" return "ACCOMPLISHED"
+
+"\"nonPlayerChars\"" return 'NPCs' 
 
 {P_NAME}           return 'PROP_NAME'
 
@@ -103,25 +117,28 @@ false             return 'FALSE'
 
 pervasiveGame
   : '{' gameMeta ',' GAME_OBJS ':' gameObjs ',' WORLD ':' world '}' EOF
-    { typeof console !== 'undefined' ? console.log($1+$2+$3+$4+$5+$6+$7+$8+$9+$10+$11) : print($1); }
+    { 
+      typeof console !== 'undefined' 
+      ? console.log(`{${$gameMeta}, ${$GAME_OBJS}: ${$gameObjs}, ${$WORLD}:${$world}}`) 
+      : print($1); 
+    }
   ;
 
 gameMeta
-  : UID ':' val ',' NAME ':' val ',' DESC ':' val  { $$ = $1 + $2 + $3 +$4 + $5 + $6 + $7 + $8 +$9 + $10 + $11; }
+  : UID ':' val ',' NAME ':' val ',' DESC ':' val  
+    { $$ = $1 + $2 + $3 +$4 + $5 + $6 + $7 + $8 +$9 + $10 + $11; }
   ;
 gameObjs 
-  : '[' gameObjItems ']' { $$ = '[' + $2 + ']'; }
+  : '[' gameObjItems ']' { $$ = `[ ${$2} ]`; }
   ;
 gameObjItems 
   : gameObject 
-  | gameObject ',' gameObjItems { $$ = $1 + ',' + $3; }
+  | gameObject ',' gameObjItems { $$ = `${$1},${$3}`; }
   ;
 
 gameObject
-  : '{' objStdProps '}'     
-    { $$ = '\n{\n'+ $objStdProps + '\n}\n'; }
-  | '{' objStdProps  objAdditionalProps '}' 
-    { $$ = '\n{\n'+ $objStdProps + $objAdditionalProps +'\n}\n'; }
+  : '{' objStdProps '}' { $$ = `\n{\n ${$objStdProps}\n}\n`; }
+  | '{' objStdProps  objAdditionalProps '}' { $$ = `\n{\n ${$objStdProps} ${$objAdditionalProps} \n}\n`; }
   ;
 
 objStdProps  
@@ -181,12 +198,8 @@ propValue
   : val
   ;
 
-cond
-  : '{' op ':' '[' values ']' '}' { $$ = '{' + $2 + ':[' + $5 + ']}'; }  
-  ;
-
 world
-  : '{' worldMeta ',' SCENES ':' scenes ',' LAWS ':' laws '}'
+  : '{' worldMeta ',' SCENES ':' scenes ',' LAWS ':' laws ',' PLAYERS ':' players ',' NPCs ':' nonPlayerChars '}'
   ;
 
 worldMeta
@@ -216,8 +229,8 @@ gameObjsInstItems
   ;
 
 gameObjInstance
-  : '{' OBJ_INST_ID ':' STR ',' INSTANCE_OF ':' instOf ',' CREATOR_ID ':' STR ',' POS ':' geoGoords '}'     
-    { $$ = '\n{\n'+ $objStdProps + '\n}\n'; }
+  : '{' OBJ_INST_ID ':' STR ',' INSTANCE_OF ':' instOf ',' CREATOR_ID ':' STR ',' POS ':' geoCoords '}'
+    { $$ = '\n{\n'+ $OBJ_INST_ID + ':' + $STR1 + $INSTANCE_OF + ':' + $instOf + '\n}\n'; }
   | '{' objStdProps  objAdditionalProps '}' 
     { $$ = '\n{\n'+ $objStdProps + $objAdditionalProps +'\n}\n'; }  
   ;
@@ -237,10 +250,106 @@ lawItems
   ;  
 
 law
-  : cond
+  : '{' UID ':' STR ',' NAME ':' STR ',' RULE ':' cond '}'
   ;
 
-avatars
+players
+  : '[' playerItems ']' { $$ = '[' + $2 + ']'; }
+  ;
+
+playerItems
+  : player
+  | player ',' playerItems
+  | %empty
+  ;
+
+// player
+//   : '{' playerMeta '}'
+//   | '{' playerMeta ',' AVATAR ':' avatar '}'
+//   | '{' playerMeta ',' AVATAR ':' avatar ',' INVENTORY ':' inventory ',' SKILLS ':' skills ',' MISSIONS ':' missions '}'
+//   ;
+
+simplePlayer : playerMeta ;
+
+playerMeta
+  : UID ':' STR ',' NAME ':' STR ',' ALIAS ':' STR
+  ;
+
+simplePlayerWithAvatar 
+  : simplePlayer 
+  | AVATAR ':' avatar ',' simplePlayer   
+  ;
+
+simplePlayerWithAvatarInv
+  : simplePlayerWithAvatar 
+  | INVENTORY ':' inventory ',' simplePlayerWithAvatar 
+  ;
+
+simplePlayerWithAvatarInvSkills
+  : simplePlayerWithAvatarInv
+  | SKILLS ':' skills ',' simplePlayerWithAvatarInv
+  ;
+
+simplePlayerWithAvatarInvSkillsMissions
+  : simplePlayerWithAvatarInvSkills
+  | MISSIONS ':' missions ',' simplePlayerWithAvatarInvSkills 
+  ;
+
+player: '{' simplePlayerWithAvatarInvSkillsMissions '}' ;
+
+avatar
+  : '{' NAME ':' STR ',' ICON ':' STR ',' PHOTO ':' STR '}'
+  ;
+
+inventory
+  : '[' gameObjsInstItems ']'
+  ;
+
+skills
+  : '[' skillItems ']'
+  ;
+
+skillItems
+  : skill
+  | skill ',' skillItems
+  | %empty
+  ;
+
+skill
+  : '{' NAME ':' STR '}'
+  ;
+
+missions
+  : '[' missionItems ']'  
+  ;
+
+missionItems
+  : missionItem
+  | missionItem ',' missionItems
+  ;
+
+missionItem
+  : '{' STATUS ':' misstionStatus '}'
+  ;
+
+misstionStatus
+  : PENDING
+  | ACCOMPLISHED
+  ;
+
+nonPlayerChars
+  : '[' nonPlayerCharItems ']'
+  ;
+
+nonPlayerCharItems
+  : nonPlayerChar
+  | nonPlayerChar ',' nonPlayerCharItems
+  | %empty
+  ; 
+
+nonPlayerChar
+  : '{' NAME ':' STR ',' ICON ':' STR ',' PHTO ':' STR '}'
+  ;
 
 area
   : '{' center ',' radius '}'
@@ -256,6 +365,10 @@ geoCoords
 
 radius
   : RADIUS ':' numVal
+  ;
+
+cond
+  : '{' op ':' '[' values ']' '}' { $$ = '{' + $2 + ':[' + $5 + ']}'; }  
   ;
 
 values
