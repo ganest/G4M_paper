@@ -114,6 +114,12 @@
         "alias": 'ganest'        
       }
     ],
-    "nonPlayerChars" : []      
+    "nonPlayerChars" : [
+      {
+        "name": 'Manolios',
+        "icon": 'Manolios Icon',
+        "photo": 'Manolios Photo'
+      }
+    ]      
   }
 }
