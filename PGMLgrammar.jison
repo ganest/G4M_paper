@@ -119,7 +119,7 @@ pervasiveGame
   : '{' gameMeta ',' GAME_OBJS ':' gameObjs ',' WORLD ':' world '}' EOF
     { 
       typeof console !== 'undefined' 
-      ? console.log(`{${$gameMeta}, ${$GAME_OBJS}: ${$gameObjs}, ${$WORLD}:${$world}}`) 
+      ? console.log(`{\n${$gameMeta}, ${$GAME_OBJS}: ${$gameObjs}, \n${$WORLD}:${$world}}`) 
       : print($1); 
     }
   ;
@@ -129,16 +129,20 @@ gameMeta
     { $$ = $1 + $2 + $3 +$4 + $5 + $6 + $7 + $8 +$9 + $10 + $11; }
   ;
 gameObjs 
-  : '[' gameObjItems ']' { $$ = `[ ${$2} ]`; }
+  : '[' gameObjItems ']' 
+    { $$ = `[ ${$2} ]`; }
   ;
 gameObjItems 
   : gameObject 
-  | gameObject ',' gameObjItems { $$ = `${$1},${$3}`; }
+  | gameObject ',' gameObjItems 
+    { $$ = `${$1},${$3}`; }
   ;
 
 gameObject
-  : '{' objStdProps '}' { $$ = `\n{\n ${$objStdProps}\n}\n`; }
-  | '{' objStdProps  objAdditionalProps '}' { $$ = `\n{\n ${$objStdProps} ${$objAdditionalProps} \n}\n`; }
+  : '{' objStdProps '}' 
+    { $$ = `\n{\n ${$objStdProps}\n}\n`; }
+  | '{' objStdProps  objAdditionalProps '}' 
+    { $$ = `\n{\n ${$objStdProps} ${$objAdditionalProps} \n}\n`; }
   ;
 
 objStdProps  
@@ -147,7 +151,8 @@ objStdProps
   ;
 
 objType
-  : VO vObjStdProps { $$ = $VO + $vObjStdProps; }
+  : VO vObjStdProps 
+    { $$ = $VO + $vObjStdProps; }
   | RWO
   ;
 
@@ -159,18 +164,22 @@ vObjStdProps
  ;
 
 exposes
-  : ',' EXPOSES ':' '[' behavioural_interfaces ']' { $$ = ',' + $EXPOSES + ':[' + ($behavioural_interfaces ? $behavioural_interfaces : '') +']'; }
+  : ',' EXPOSES ':' '[' behavioural_interfaces ']' 
+    { $$ = ',' + $EXPOSES + ':[' + ($behavioural_interfaces ? $behavioural_interfaces : '') +']'; }
   ;
 
 behavioural_interfaces
   : behavioural_interface 
-  | behavioural_interface ',' behavioural_interfaces { $$ = $1 + ',' + $3; }
+  | behavioural_interface ',' behavioural_interfaces 
+    { $$ = $1 + ',' + $3; }
   | %empty 
   ;
 
 behavioural_interface
-  : '{' NAME ':' interface '}' { $$ = $1 + $2 + $3 + $4 + $5; }
-  | '{' NAME ':' interface ',' CONDITIONAL ':' cond '}' { $$ = $1 + $2 + $3 + $4 + $5 + $6 + $7 + $8 + $9; }
+  : '{' NAME ':' interface '}' 
+    { $$ = $1 + $2 + $3 + $4 + $5; }
+  | '{' NAME ':' interface ',' CONDITIONAL ':' cond '}' 
+    { $$ = $1 + $2 + $3 + $4 + $5 + $6 + $7 + $8 + $9; }
   ; 
 
 interface
@@ -183,11 +192,13 @@ interface
 
 objAdditionalProps
   : objAdditionalProp
-  | objAdditionalProp objAdditionalProps { $$ = $1 + $2; }   
+  | objAdditionalProp objAdditionalProps 
+    { $$ = $1 + $2; }   
   ;
 
 objAdditionalProp
-  : ',' propName ':' propValue { $$ = $1 + $2 + $3 + $4; }
+  : ',' propName ':' propValue 
+    { $$ = $1 + $2 + $3 + $4; }
   ;
 
 propName
@@ -200,31 +211,38 @@ propValue
 
 world
   : '{' worldMeta ',' SCENES ':' scenes ',' LAWS ':' laws ',' PLAYERS ':' players ',' NPCs ':' nonPlayerChars '}'
+    { $$ = `{\n ${$worldMeta},\n${$SCENES}: ${$scenes},\n${$LAWS}:${$laws},\n${$PLAYERS}: ${$players},\n${$NPCs}:${$nonPlayerChars} \n}`; } 
   ;
 
 worldMeta
   : CURRENCY ':' STR ',' TERRITORY ':' STR ',' TERRITORY_AREA ':' area
+    { $$ = `${$CURRENCY}:${$STR1},${$TERRITORY}:${$STR2},${$TERRITORY_AREA}:${$area}`; }
   ;
 
 scenes
-  : '[' sceneItems ']' { $$ = '[' + $2 + ']'; }
+  : '[' sceneItems ']' 
+    { $$ = `[${$sceneItems}]`; }
   ;
 
 sceneItems
   : scene
   | scene ',' sceneItems
+    { $$ = `${$scene},${$sceneItems}`; }
   ;
 
 scene
   : '{' UID ':' STR ',' NAME ':' STR ',' AREA ':' area ',' GAME_OBJS_INSTS ':' gameObjsInsts '}'
+    { $$ = `{\n${$UID}:${$STR1}, ${$NAME}:${$STR2}, ${$AREA}:${$area},${$GAME_OBJS_INSTS}:${$gameObjsInsts} \n}`;}
   ;
 
 gameObjsInsts 
-  : '[' gameObjsInstItems ']' { $$ = '[' + $2 + ']'; }
+  : '[' gameObjsInstItems ']' 
+    { $$ = `[${$gameObjsInstItems}]`; }
   ;
 gameObjsInstItems 
   : gameObjInstance 
-  | gameObjInstance ',' gameObjsInstItems { $$ = $1 + ',' + $3; }
+  | gameObjInstance ',' gameObjsInstItems 
+    { $$ = `${$gameObjInstance},${$gameObjsInstItems}`; }
   | %empty  
   ;
 
@@ -241,25 +259,30 @@ instOf
 
 laws
   : '[' lawItems ']'  
+    { $$ = `[${$lawItems}]`; }
   ;
 
 lawItems
   : law
   | law ',' lawItems
+    { $$ = `${$law},${$lawItems}`; } 
   | %empty
   ;  
 
 law
   : '{' UID ':' STR ',' NAME ':' STR ',' RULE ':' cond '}'
+    { $$ = `{ ${$UID}:${$STR1}, ${$NAME}:${$STR2},${$RULE}:${$cond} }`;}
   ;
 
 players
-  : '[' playerItems ']' { $$ = '[' + $2 + ']'; }
+  : '[' playerItems ']' 
+    { $$ = `[${$playerItems}]`; }
   ;
 
 playerItems
   : player
   | player ',' playerItems
+    { $$ = `${$player}, ${$playerItems}`; }
   | %empty
   ;
 
@@ -272,108 +295,132 @@ playerItems
 simplePlayer : playerMeta ;
 
 playerMeta
-  : UID ':' STR ',' NAME ':' STR ',' ALIAS ':' STR
+  : UID ':' STR ',' NAME ':' STR ',' ALIAS ':' STR 
+    { $$ = `${$UID}:${$STR1},${$NAME}:${$STR2},${$ALIAS}:${$STR3}`;}
   ;
 
 simplePlayerWithAvatar 
   : simplePlayer 
-  | AVATAR ':' avatar ',' simplePlayer   
+  | AVATAR ':' avatar ',' simplePlayer 
+    { $$ = `\n${$AVATAR}:${$avatar},${$simplePlayer}`; }
   ;
 
 simplePlayerWithAvatarInv
   : simplePlayerWithAvatar 
   | INVENTORY ':' inventory ',' simplePlayerWithAvatar 
+    { $$ = `\n${$INVENTORY}:${$inventory},${$simplePlayerWithAvatar}`; }
   ;
 
 simplePlayerWithAvatarInvSkills
   : simplePlayerWithAvatarInv
-  | SKILLS ':' skills ',' simplePlayerWithAvatarInv
+  | SKILLS ':' skills ',' simplePlayerWithAvatarInv 
+    { $$ = `\n${$SKILLS}:${$skills},${$simplePlayerWithAvatarInv}`; } 
   ;
 
 simplePlayerWithAvatarInvSkillsMissions
   : simplePlayerWithAvatarInvSkills
   | MISSIONS ':' missions ',' simplePlayerWithAvatarInvSkills 
+    { $$ = `\n${$MISSIONS}:${$missions},${$simplePlayerWithAvatarInvSkills}`; } 
   ;
 
-player: '{' simplePlayerWithAvatarInvSkillsMissions '}' ;
+player
+  : '{' simplePlayerWithAvatarInvSkillsMissions '}' 
+    { $$ = `\n{${$simplePlayerWithAvatarInvSkillsMissions}}`; };
 
 avatar
   : '{' NAME ':' STR ',' ICON ':' STR ',' PHOTO ':' STR '}'
+    { $$ = `{${$NAME}:${$STR1},${$ICON}:${$STR2},${$PHOTO}:${$STR3} }`; }
   ;
 
 inventory
-  : '[' gameObjsInstItems ']'
+  : '[' gameObjsInstItems ']' 
+    { $$ = `[${$gameObjsInstItems}]`; }
   ;
 
 skills
   : '[' skillItems ']'
+    { $$ = `[${$skillItems}]`; }
   ;
 
 skillItems
   : skill
-  | skill ',' skillItems
+  | skill ',' skillItems 
+    { $$ = `${$skill},${$skillItems}`; }
   | %empty
   ;
 
 skill
   : '{' NAME ':' STR '}'
+    { $$ = `{${$NAME}:${$STR} }`; }
   ;
 
 missions
-  : '[' missionItems ']'  
+  : '[' missionItems ']'
+    { $$ = `[${$missionItems}]`; }
   ;
 
 missionItems
   : missionItem
   | missionItem ',' missionItems
+    { $$ = `${$missionItem},${$missionItems}`; }
   ;
 
 missionItem
-  : '{' STATUS ':' misstionStatus '}'
+  : '{' STATUS ':' missionStatus '}'
+    { $$ = `{${$STATUS}:${$missionStatus}}`; }
   ;
 
-misstionStatus
+missionStatus
   : PENDING
   | ACCOMPLISHED
   ;
 
 nonPlayerChars
   : '[' nonPlayerCharItems ']'
+    { $$ = `[${$nonPlayerCharItems}]`; }
   ;
 
 nonPlayerCharItems
   : nonPlayerChar
   | nonPlayerChar ',' nonPlayerCharItems
+    { $$ = `${$nonPlayerChar},${$nonPlayerCharItems}`; }
   | %empty
   ; 
 
 nonPlayerChar
-  : '{' NAME ':' STR ',' ICON ':' STR ',' PHTO ':' STR '}'
+  : '{' NAME ':' STR ',' ICON ':' STR ',' PHOTO ':' STR '}'
+    { $$ = `{\n${$NAME}:${$STR1},${$ICON}:${$STR2},${$PHOTO}:${$STR3} }`; }
   ;
 
 area
   : '{' center ',' radius '}'
+    { $$ = `{${$center},${$radius} }`; }
   ;
 
 center
   : CENTER ':' geoCoords
+    { $$ = `${$CENTER}:${$geoCoords}`; }
   ;
 
 geoCoords
   : '{' LAT ':' numVal ',' LON ':' numVal '}'
+    { $$ = `{ ${$LAT}:${$numVal1},${$LON}:${$numVal2} }`; }
   ;
 
 radius
   : RADIUS ':' numVal
+    { $$ = `${$RADIUS}:${$numVal}`; }
   ;
 
 cond
-  : '{' op ':' '[' values ']' '}' { $$ = '{' + $2 + ':[' + $5 + ']}'; }  
+  : '{' op ':' '[' values ']' '}' 
+    { $$ = '{' + $2 + ':[' + $5 + ']}'; }  
   ;
 
 values
-  : val { $$ = $1; }
-  | val ',' values { $$ = $1 + ',' + $3; }
+  : val     
+  | val ',' values 
+    { $$ = $1 + ',' + $3; }
   ;
   
 val 
