@@ -426,6 +426,7 @@ values
 val 
   : cond 
   | numVal
+  | boolVal
   | ID 
   | STR 
   ;
