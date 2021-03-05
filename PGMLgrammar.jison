@@ -1,4 +1,19 @@
-/* lexical grammar */
+/*
+Author: George Anestis
+email: ganest@ced.tuc.gr
+Organisation: Technical University of Crete (TUC), ECE Department
+
+Grammar of the Pervasive Game Modelling Language described using the 
+Jison, a JavaScript parser generator (https://zaa.ch/jison/)
+
+The first part describes the tokens for Lexical Analysis via
+regural expressions using notation similar to that of Flex tool (https://github.com/westes/flex)
+
+The second part describes the grammar rules for Syntactic Analysis 
+using BNF-like notation similar to that of the Bison tool (https://www.gnu.org/software/bison/)
+*/
+
+/* Part 1: lexical grammar */
 %lex
 
 DIGIT [0-9]
@@ -111,9 +126,15 @@ false             return 'FALSE'
 
 /lex
 
+/* Part 2: language grammar */
+/* TODO
+In the final version, I have to delete the action part of the rules 
+which is used only during development for debugging purposes
+*/
+
 %start pervasiveGame
 
-%% /* language grammar */
+%% 
 
 pervasiveGame
   : '{' gameMeta ',' GAME_OBJS ':' gameObjs ',' WORLD ':' world '}' EOF
