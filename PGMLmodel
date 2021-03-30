@@ -121,5 +121,25 @@
         "photo": 'Manolios Photo'
       }
     ]      
-  }
+  },
+  "missions": [
+    {
+      "subMissions": [
+        {
+          "missionId": 'mission-1.1',
+          "name": 'Find detonator',
+          "description": 'find detonator'
+        },
+        {
+          "missionId": 'mission-1.2',
+          "name": 'Semtex',
+          "description": 'find semtec'
+        }
+      ],
+      "ordered": false,
+      "missionId": 'mission-1',
+      "name": 'create bomb',
+      "description": 'Find statues which have been awaken, take their energy to neutralize them'     
+    }
+  ]
 }

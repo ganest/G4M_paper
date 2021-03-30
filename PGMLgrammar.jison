@@ -15,6 +15,8 @@ using BNF-like notation similar to that of the Bison tool (https://www.gnu.org/s
 
 /* Part 1: lexical grammar */
 %lex
+%options easy_keyword_rules
+%options flex
 
 DIGIT [0-9]
 IDENT [a-zA-Z_][0-9a-zA-Z_.]*
@@ -42,8 +44,7 @@ P_NAME \"{IDENT}\"
 //"'"?{IDENT}"'"?  return 'ID'
 true              return 'TRUE'
 false             return 'FALSE'
-{IDENT}          return 'ID'
-{STRING}         return 'STR'
+
 "\"*\""          return '*'
 "\"/\""          return '/'
 "\"-\""          return '-'
@@ -77,8 +78,10 @@ false             return 'FALSE'
 "\"objInstId\""   return 'OBJ_INST_ID'
 "\"instanceOf\""  return 'INSTANCE_OF'
 "\"creatorId\""   return 'CREATOR_ID'
+"\"missionId\""   return 'MISSION_ID'
 "\"position\""    return 'POS'
 "\"name\""        return 'NAME'
+"\"label\""       return 'LABEL'
 "\"id\""          return 'UID'
 "\"description\"" return 'DESC'
 "\"objectType\""  return 'OBJ_TYPE'
@@ -103,23 +106,29 @@ false             return 'FALSE'
 "\"area\""        return 'AREA'
 "\"scenes\""      return 'SCENES'
 "\"scene\""       return 'SCENE'
-"\"laws\""        return "LAWS"
-"\"rule\""        return "RULE"
-"\"players\""     return "PLAYERS"
-"\"alias\""       return "ALIAS"
-"\"avatar\""      return "AVATAR"
-"\"photo\""       return "PHOTO"
-"\"inventory\""   return "INVENTORY"
-"\"skills\""      return "SKILLS"
-"\"missions\""    return "MISSIONS"
-"\"status\""      return "STATUS"
-"\"pending\""     return "PENDING"
+"\"laws\""        return 'LAWS'
+"\"rule\""        return 'RULE'
+"\"players\""     return 'PLAYERS'
+"\"alias\""       return 'ALIAS'
+"\"avatar\""      return 'AVATAR'
+"\"photo\""       return 'PHOTO'
+"\"inventory\""   return 'INVENTORY'
+"\"skills\""      return 'SKILLS'
+"\"missions\""    return 'MISSIONS'
+"\"subMissions\"" return "SUB_MISSIONS"
+"\"status\""      return 'STATUS'
+"\"pending\""     return 'PENDING'
+"\"ordered\""     return 'ORDERED'
 
-"\"accomplished\"" return "ACCOMPLISHED"
+"\"accomplished\""    return 'ACCOMPLISHED'
 
-"\"nonPlayerChars\"" return 'NPCs' 
+"\"nonPlayerChars\""  return 'NPCs' 
+"\"assingedMissions\"" return 'ASSIGNED_MISSIONS'
 
-{P_NAME}           return 'PROP_NAME'
+{P_NAME}          return 'PROP_NAME'
+
+{IDENT}           return 'ID'
+{STRING}          return 'STR'
 
 <<EOF>>           return 'EOF'
 .                 return 'INVALID'
@@ -137,10 +146,10 @@ which is used only during development for debugging purposes
 %% 
 
 pervasiveGame
-  : '{' gameMeta ',' GAME_OBJS ':' gameObjs ',' WORLD ':' world '}' EOF
+  : '{' gameMeta ',' GAME_OBJS ':' gameObjs ',' WORLD ':' world ','  MISSIONS ':' missions '}' EOF
     { 
       typeof console !== 'undefined' 
-      ? console.log(`{\n${$gameMeta}, ${$GAME_OBJS}: ${$gameObjs}, \n${$WORLD}:${$world}}`) 
+      ? console.log(`{\n${$gameMeta},${$GAME_OBJS}:${$gameObjs}, \n${$WORLD}:${$world}, \n${$MISSIONS}: ${$missions}}`) 
       : print($1); 
     }
   ;
@@ -149,6 +158,8 @@ gameMeta
   : UID ':' val ',' NAME ':' val ',' DESC ':' val  
     { $$ = $1 + $2 + $3 +$4 + $5 + $6 + $7 + $8 +$9 + $10 + $11; }
   ;
+
+/* Pervasive Game GameObjects */
 gameObjs 
   : '[' gameObjItems ']' 
     { $$ = `[ ${$2} ]`; }
@@ -167,7 +178,7 @@ gameObject
   ;
 
 objStdProps  
-  :  UID ':' val ',' OBJ_TYPE ':' objType ',' NAME ':' val ',' ICON ':' val exposes
+  :  UID ':' val ',' OBJ_TYPE ':' objType ',' NAME ':' val ',' ICON ':' STR exposes
     { $$ = $1+$2+$3+$4+$5+$6+$7+$8+$9+$10+$11+$12+$13+$14+$15+$16; }
   ;
 
@@ -230,6 +241,7 @@ propValue
   : val
   ;
 
+/* Pervasive Game World */
 world
   : '{' worldMeta ',' SCENES ':' scenes ',' LAWS ':' laws ',' PLAYERS ':' players ',' NPCs ':' nonPlayerChars '}'
     { $$ = `{\n ${$worldMeta},\n${$SCENES}: ${$scenes},\n${$LAWS}:${$laws},\n${$PLAYERS}: ${$players},\n${$NPCs}:${$nonPlayerChars} \n}`; } 
@@ -338,15 +350,16 @@ simplePlayerWithAvatarInvSkills
     { $$ = `\n${$SKILLS}:${$skills},${$simplePlayerWithAvatarInv}`; } 
   ;
 
-simplePlayerWithAvatarInvSkillsMissions
+simplePlayerWithAvatarInvSkillsAssignedMissions
   : simplePlayerWithAvatarInvSkills
-  | MISSIONS ':' missions ',' simplePlayerWithAvatarInvSkills 
-    { $$ = `\n${$MISSIONS}:${$missions},${$simplePlayerWithAvatarInvSkills}`; } 
+  | ASSIGNED_MISSIONS ':' assignedMissions ',' simplePlayerWithAvatarInvSkills 
+    { $$ = `\n${$ASSIGNED_MISSIONS}:${$assignedMissions},${$simplePlayerWithAvatarInvSkills}`; } 
   ;
 
 player
-  : '{' simplePlayerWithAvatarInvSkillsMissions '}' 
-    { $$ = `\n{${$simplePlayerWithAvatarInvSkillsMissions}}`; };
+  : '{' simplePlayerWithAvatarInvSkillsAssignedMissions '}'
+    { $$ = `\n{${$simplePlayerWithAvatarInvSkillsAssignedMissions}}`; }
+  ;
 
 avatar
   : '{' NAME ':' STR ',' ICON ':' STR ',' PHOTO ':' STR '}'
@@ -375,6 +388,28 @@ skill
     { $$ = `{${$NAME}:${$STR} }`; }
   ;
 
+assignedMissions 
+  : '[' assignedMissionItems ']'
+    { $$ = `[${$assignedMissionItems}]`; }
+  ;
+
+assignedMissionItems
+  : assignedMissionItem
+  | assignedMissionItem ',' assignedMissionItems
+    { $$ = `${$assignedMissionItem}, ${$assignedMissionItems}`; }
+  ;
+
+assignedMissionItem 
+  : '{' MISSION_ID ':' STR ',' STATUS ':' assignedMissionStatus '}'
+    { $$ = `{ ${$MISSION_ID}:${$STR}, ${$STATUS}:${$assignedMissionStatus} }`; }
+  ;
+
+assignedMissionStatus
+  : PENDING
+  | ACCOMPLISHED
+  ;
+
+/* Pervasive Game missions */
 missions
   : '[' missionItems ']'
     { $$ = `[${$missionItems}]`; }
@@ -384,16 +419,23 @@ missionItems
   : missionItem
   | missionItem ',' missionItems
     { $$ = `${$missionItem},${$missionItems}`; }
+  | %empty 
+  ;
+
+simpleMissionItem
+  : MISSION_ID ':' STR ',' NAME ':' STR ',' DESC ':' STR 
+    { $$ = `${$MISSION_ID}:${$STR1},${$NAME}:${$STR2},${$DESC}:${$STR3}`; }
+  ;
+
+compositeMissionItem
+  : simpleMissionItem
+  | SUB_MISSIONS ':'  missions ',' ORDERED ':' boolVal ',' simpleMissionItem
+    { $$ = `${$SUB_MISSIONS}:${$missions},${$ORDERED}:${$boolVal},${$simpleMissionItem}`;}
   ;
 
 missionItem
-  : '{' STATUS ':' missionStatus '}'
-    { $$ = `{${$STATUS}:${$missionStatus}}`; }
-  ;
-
-missionStatus
-  : PENDING
-  | ACCOMPLISHED
+  : '{' compositeMissionItem '}'
+    { $$ = `{${$compositeMissionItem}}`;}
   ;
 
 nonPlayerChars
