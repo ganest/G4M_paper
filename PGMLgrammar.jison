@@ -1,7 +1,7 @@
 /*
 Author: George Anestis
 email: ganest@ced.tuc.gr
-Organisation: Technical University of Crete (TUC), ECE Department
+Organisation: Technical University of Crete (TUC), School of Electrical & Computer Engineering 
 
 Grammar of the Pervasive Game Modelling Language described using the 
 Jison, a JavaScript parser generator (https://zaa.ch/jison/)
@@ -74,6 +74,9 @@ false             return 'FALSE'
 "\"territoryArea\""         return 'TERRITORY_AREA'
 "\"gameObjects\""           return 'GAME_OBJS'
 "\"gameObjectsInstances\""  return 'GAME_OBJS_INSTS'
+"\"statements\""            return 'STMTS'
+"\"resources\""             return 'RESOURCES'
+"\"marketplace\""           return 'MARKETPLACE'
 
 "\"objInstId\""   return 'OBJ_INST_ID'
 "\"instanceOf\""  return 'INSTANCE_OF'
@@ -94,6 +97,7 @@ false             return 'FALSE'
 "\"exchangeable\"" return 'EXCHANGABLE'
 "\"solvable\""    return 'SOLVABLE'
 "\"scannable\""   return 'SCANNABLE'
+"\"responsable\"" return 'RESPONSABLE'
 "\"hidden\""      return 'HIDDEN'
 "\"active\""      return 'ACTIVE'
 "\"trackable\""   return 'TRACKABLE'
@@ -105,7 +109,6 @@ false             return 'FALSE'
 "\"radius\""      return 'RADIUS'
 "\"area\""        return 'AREA'
 "\"scenes\""      return 'SCENES'
-"\"scene\""       return 'SCENE'
 "\"laws\""        return 'LAWS'
 "\"rule\""        return 'RULE'
 "\"players\""     return 'PLAYERS'
@@ -119,11 +122,17 @@ false             return 'FALSE'
 "\"status\""      return 'STATUS'
 "\"pending\""     return 'PENDING'
 "\"ordered\""     return 'ORDERED'
+"\"body\""        return 'BODY'
+"\"response\""    return 'RESPONSE'
+"\"implements\""  return 'IMPLEMENTS'
+"\"amount\""      return 'AMOUNT'
 
-"\"accomplished\""    return 'ACCOMPLISHED'
+"\"accomplished\""      return 'ACCOMPLISHED'
 
-"\"nonPlayerChars\""  return 'NPCs' 
-"\"assingedMissions\"" return 'ASSIGNED_MISSIONS'
+"\"nonPlayerChars\""    return 'NPCs' 
+"\"assingedMissions\""  return 'ASSIGNED_MISSIONS'
+"\"providedSkills\""    return 'PROVIDED_SKILLS'
+"\"supplies\""          return 'SUPPLIES'
 
 {P_NAME}          return 'PROP_NAME'
 
@@ -196,18 +205,18 @@ vObjStdProps
  ;
 
 exposes
-  : ',' EXPOSES ':' '[' behavioural_interfaces ']' 
-    { $$ = ',' + $EXPOSES + ':[' + ($behavioural_interfaces ? $behavioural_interfaces : '') +']'; }
+  : ',' EXPOSES ':' '[' behaviouralInterfaces ']' 
+    { $$ = ',' + $EXPOSES + ':[' + ($behaviouralInterfaces ? $behaviouralInterfaces : '') +']'; }
   ;
 
-behavioural_interfaces
-  : behavioural_interface 
-  | behavioural_interface ',' behavioural_interfaces 
+behaviouralInterfaces
+  : behaviouralInterface 
+  | behaviouralInterface ',' behaviouralInterfaces 
     { $$ = $1 + ',' + $3; }
   | %empty 
   ;
 
-behavioural_interface
+behaviouralInterface
   : '{' NAME ':' interface '}' 
     { $$ = $1 + $2 + $3 + $4 + $5; }
   | '{' NAME ':' interface ',' CONDITIONAL ':' cond '}' 
@@ -220,6 +229,7 @@ interface
   | EXCHANGABLE
   | SOLVABLE
   | SCANNABLE
+  | RESPONSABLE
   ;
 
 objAdditionalProps
@@ -243,8 +253,8 @@ propValue
 
 /* Pervasive Game World */
 world
-  : '{' worldMeta ',' SCENES ':' scenes ',' LAWS ':' laws ',' PLAYERS ':' players ',' NPCs ':' nonPlayerChars '}'
-    { $$ = `{\n ${$worldMeta},\n${$SCENES}: ${$scenes},\n${$LAWS}:${$laws},\n${$PLAYERS}: ${$players},\n${$NPCs}:${$nonPlayerChars} \n}`; } 
+  : '{' worldMeta ',' SCENES ':' scenes ',' LAWS ':' laws ',' PLAYERS ':' players ',' NPCs ':' nonPlayerChars ',' RESOURCES ':' resources ',' MARKETPLACE ':' marketplace '}'
+    { $$ = `{\n ${$worldMeta},\n${$SCENES}: ${$scenes},\n${$LAWS}:${$laws},\n${$PLAYERS}: ${$players},\n${$NPCs}:${$nonPlayerChars},${$RESOURCES}:${$resources},${$MARKETPLACE}:${$marketplace} \n}`; } 
   ;
 
 worldMeta
@@ -252,6 +262,7 @@ worldMeta
     { $$ = `${$CURRENCY}:${$STR1},${$TERRITORY}:${$STR2},${$TERRITORY_AREA}:${$area}`; }
   ;
 
+/* World's Scenes */
 scenes
   : '[' sceneItems ']' 
     { $$ = `[${$sceneItems}]`; }
@@ -264,13 +275,13 @@ sceneItems
   ;
 
 scene
-  : '{' UID ':' STR ',' NAME ':' STR ',' AREA ':' area ',' GAME_OBJS_INSTS ':' gameObjsInsts '}'
-    { $$ = `{\n${$UID}:${$STR1}, ${$NAME}:${$STR2}, ${$AREA}:${$area},${$GAME_OBJS_INSTS}:${$gameObjsInsts} \n}`;}
+  : '{' UID ':' STR ',' NAME ':' STR ',' AREA ':' area ',' GAME_OBJS_INSTS ':' gameObjsInsts ',' STMTS ':' stmts '}'
+    { $$ = `{\n${$UID}:${$STR1}, ${$NAME}:${$STR2}, ${$AREA}:${$area},${$GAME_OBJS_INSTS}:${$gameObjsInsts},${$STMTS}:${$stmts} \n}`;}
   ;
 
 gameObjsInsts 
   : '[' gameObjsInstItems ']' 
-    { $$ = `[${$gameObjsInstItems}]`; }
+    { $$ = `[${$gameObjsInstItems ? $gameObjsInstItems : ''}]`; }
   ;
 gameObjsInstItems 
   : gameObjInstance 
@@ -280,16 +291,44 @@ gameObjsInstItems
   ;
 
 gameObjInstance
-  : '{' OBJ_INST_ID ':' STR ',' INSTANCE_OF ':' instOf ',' CREATOR_ID ':' STR ',' POS ':' geoCoords '}'
-    { $$ = '\n{\n'+ $OBJ_INST_ID + ':' + $STR1 + $INSTANCE_OF + ':' + $instOf + '\n}\n'; }
-  | '{' objStdProps  objAdditionalProps '}' 
-    { $$ = '\n{\n'+ $objStdProps + $objAdditionalProps +'\n}\n'; }  
+  : '{' OBJ_INST_ID ':' STR ',' INSTANCE_OF ':' STR ',' CREATOR_ID ':' STR ',' POS ':' geoCoords '}'
+    { $$ = `\n{\n${$OBJ_INST_ID}:${$STR1},${$INSTANCE_OF}:${$STR2},${$CREATOR_ID}:${$STR3},${$POS}:${$geoCoords}\n}\n`; }   
   ;
 
-instOf
-  : STR
+stmts
+  : '[' stmtItems ']'
+    { $$ = `[${$stmtItems ? $stmtItems : ''}]`; }
   ;
 
+stmtItems
+  : stmt
+  | stmt ',' stmtItems
+    { $$ = `${$stmt},${$stmtItems}`; }
+  | %empty
+  ;
+
+stmt
+  : '{' UID ':' STR ','  BODY ':' STR ',' RESPONSE ':' options  '}'
+    { $$ = `{${$UID}:${$STR1},${$BODY}:${$STR2},${$RESPONSE}:${$options}}`; }
+  ;
+
+options
+  : '[' optionItems ']'
+    { $$ = `[${$optionItems}]`; }
+  ;
+
+optionItems
+  : option
+  | option ',' optionItems
+    { $$ = `${$option},${$optionItems}`; }  
+  ;
+
+option
+  : '{' LABEL ':' STR ',' ICON ':' STR ',' IMPLEMENTS ':' behaviouralInterface  '}'
+    { $$ = `{${$LABEL}:${$STR1},${$ICON};${$STR2},${$IMPLEMENTS}:${$behaviouralInterface}}`; }
+  ;
+
+/* World's Laws */
 laws
   : '[' lawItems ']'  
     { $$ = `[${$lawItems}]`; }
@@ -307,6 +346,7 @@ law
     { $$ = `{ ${$UID}:${$STR1}, ${$NAME}:${$STR2},${$RULE}:${$cond} }`;}
   ;
 
+/* World's Players */
 players
   : '[' playerItems ']' 
     { $$ = `[${$playerItems}]`; }
@@ -318,12 +358,6 @@ playerItems
     { $$ = `${$player}, ${$playerItems}`; }
   | %empty
   ;
-
-// player
-//   : '{' playerMeta '}'
-//   | '{' playerMeta ',' AVATAR ':' avatar '}'
-//   | '{' playerMeta ',' AVATAR ':' avatar ',' INVENTORY ':' inventory ',' SKILLS ':' skills ',' MISSIONS ':' missions '}'
-//   ;
 
 simplePlayer : playerMeta ;
 
@@ -373,7 +407,7 @@ inventory
 
 skills
   : '[' skillItems ']'
-    { $$ = `[${$skillItems}]`; }
+    { $$ = `[${$skillItems ? $skillItems : ''}]`; }
   ;
 
 skillItems
@@ -438,6 +472,7 @@ missionItem
     { $$ = `{${$compositeMissionItem}}`;}
   ;
 
+/* World's NPCs */
 nonPlayerChars
   : '[' nonPlayerCharItems ']'
     { $$ = `[${$nonPlayerCharItems}]`; }
@@ -453,6 +488,30 @@ nonPlayerCharItems
 nonPlayerChar
   : '{' NAME ':' STR ',' ICON ':' STR ',' PHOTO ':' STR '}'
     { $$ = `{\n${$NAME}:${$STR1},${$ICON}:${$STR2},${$PHOTO}:${$STR3} }`; }
+  ;
+
+/* World's Resources */
+resources
+  : '[' resourceItems ']'
+    { $$ = `[${$resourceItems ? $resourceItems : '' }]`; }
+  ;
+
+resourceItems
+  : resource
+  | resource ',' resourceItems
+    { $$ = `${$resource},${$resourceItems}`;}
+  | %empty
+  ;
+
+resource
+  : '{' NAME ':' STR ',' AMOUNT ':' NUMBER '}'
+    { $$ = `{${$NAME}:${$STR},${$AMOUNT}:${$NUMBER}}`; }
+  ;
+
+/* World's Marketplace */
+marketplace
+  : '{' NAME ':' STR ',' SUPPLIES ':' gameObjsInsts ',' PROVIDED_SKILLS ':' skills '}'
+    { $$ = `{${$NAME}:${$STR},${$SUPPLIES}:${$gameObjsInsts},${$PROVIDED_SKILLS}:${$skills}}`;}
   ;
 
 area
